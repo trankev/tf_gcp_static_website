@@ -1,0 +1,1 @@
+third_party/project-utils/settings/commit/commitlint.config.js

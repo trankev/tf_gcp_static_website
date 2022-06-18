@@ -1,18 +1,25 @@
+terraform {
+  required_providers {
+    google = {
+      source = "google"
+    }
+  }
+}
 #############################################################################
 # Storage
 #############################################################################
 
 resource "google_storage_bucket" "website" {
-    name = "website-${var.name}"
-    location = "EU"
-    storage_class = "COLDLINE"
+  name          = "website-${var.name}"
+  location      = "EU"
+  storage_class = "COLDLINE"
 
-    uniform_bucket_level_access = true
+  uniform_bucket_level_access = true
 
-    website {
-      main_page_suffix = "index.html"
-      not_found_page = "index.html"
-    }
+  website {
+    main_page_suffix = "index.html"
+    not_found_page   = "index.html"
+  }
 }
 
 #############################################################################
@@ -21,16 +28,16 @@ resource "google_storage_bucket" "website" {
 
 # Reserve an IP address
 resource "google_compute_global_address" "website" {
-  name     = "${var.name}-lb-ip"
+  name = "${var.name}-lb-ip"
 }
 
 data "google_dns_managed_zone" "dns_zone" {
-  name     = var.dns_zone_name
+  name = var.dns_zone_name
 }
 
 # Add the IP to the DNS
 resource "google_dns_record_set" "website" {
-  name         = "${var.name}.${data.google_dns_managed_zone.dnz_zone.dns_name}"
+  name         = "${var.name}.${data.google_dns_managed_zone.dns_zone.dns_name}"
   type         = "A"
   ttl          = 300
   managed_zone = data.google_dns_managed_zone.dns_zone.name
@@ -51,7 +58,7 @@ resource "google_compute_backend_bucket" "website" {
 
 # Create HTTPS certificate
 resource "google_compute_managed_ssl_certificate" "website" {
-  name     = "${var.name}-cert"
+  name = "${var.name}-cert"
   managed {
     domains = [google_dns_record_set.website.name]
   }
