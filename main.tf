@@ -22,6 +22,13 @@ resource "google_storage_bucket" "website" {
   }
 }
 
+resource "google_storage_bucket_object" "website" {
+  for_each = fileset(var.content_path, "**")
+  name     = each.value
+  source   = "${var.content_path}/${each.value}"
+  bucket   = google_storage_bucket.website.name
+}
+
 #############################################################################
 # Network
 #############################################################################
